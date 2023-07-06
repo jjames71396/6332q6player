@@ -18,15 +18,11 @@ db = client['game_db']
 collection = db['game_states']
 
 
-# Game parameters
-pile_sizes = [0, 0, 0]
-min_pickup = 1
-max_pickup = 3
 players = {}
 
 
-#document = {'name': 'game_state','started': False,'p1': '','p2': '','question': '', 'p1s': 0, 'p2s': 0}
-#inserted_document = collection.update_one({'name':'game_state'},{'$set': document})
+document = {'name': 'game_state','started': False,'p1': '','p2': '','question': '', 'p1s': 0, 'p2s': 0, 'p1t': '', 'p2t': ''}
+inserted_document = collection.update_one({'name':'game_state'},{'$set': document})
 
 @app.route('/')
 def index():
@@ -39,25 +35,37 @@ def index():
     p = players
     start = False
     if game_state["question"] == '':
-        question = None
-    else:
-        question = game_state['question']
+        game_state = None
+        start = True
   
             
         
     # Render the template with the game state and player names
-    return render_template('index.html', question=question, time=str(time.time()))
+    return render_template('index.html', start=start, time=str(time.time()), game_state=game_state)
 
-@app.route('/answer', methods=['POST'])
-def answer():
+@app.route('/score', methods=['POST'])
+def score():
+    query = {"name": "game_state"} 
+    pl = int(request.form['pile1'])
+    game_state = collection.find_one(query)
+    
+    if pl == 1:
+        collection.update_one(query, {'$set': {'p1s': game_state['p1s']+1}})
+    else:
+        collection.update_one(query, {'$set': {'p1s': game_state['p2s']+1}})
+
+    return index()
+
+@app.route('/restart', methods=['POST'])
+def restart():
+    global players
     query = {"name": "game_state"} 
     document = {'name': 'game_state','started': False,'p1': '','p2': '','question': '', 'p1s': 0, 'p2s': 0}
-    answer = request.form['name']
-    pl = int(request.form['pile1'])
-    if pl == 1:
-        collection.update_one(query, {'$set': {'p1': answer, 'p1t': str(time.time())}})
-    elif pl == 2:
-        collection.update_one(query, {'$set': {'p2': answer, 'p2t': str(time.time())}})
+    inserted_document = collection.update_one({'name':'game_state'},{'$set': document})
+    players = {
+        1: 0,
+        2: 0
+    }
 
     return index()
 
