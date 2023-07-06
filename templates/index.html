@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multi-User Game</title>
+</head>
+<body>
+	
+    <h1>Multi-User Game</h1>
+	<h2>Player View</h2>
+	<div class="px-4 py-3 my-2 text-left">
+		<h1 class="display-6 fw"> {{time}}</h1>
+	</div>
+    {% if question %}
+		<div class="px-4 py-3 my-2 text-left">
+			<h1 class="display-6 fw"> {{question}}</h1>
+		</div>
+        <form action="/answer" method="POST">
+			<div class="d-grid gap-2 d-sm-flex justify-content-sm-center align-items-center my-1">
+				<input type="text" class="form-control" id="name" name="name" style="max-width: 500px;">
+			  </div>  
+            <label for="pile1">Player Number:</label>
+            <input type="number" name="pile1" required><br><br>
+            <input type="submit" value="Answer">
+        </form>
+    {% endif %}
+	
+</body>
+</html>
